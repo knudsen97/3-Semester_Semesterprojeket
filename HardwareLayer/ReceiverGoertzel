@@ -3,7 +3,7 @@
 #include <iostream>
 #include <thread>
 #include <vector>
-#define M_PI 3.14
+#define M_PI 3.1415926535
 
 float goertzel_mag(int numSamples, int TARGET_FREQ, unsigned int SAMPLING_RATE, const sf::Int16* data) {
 	int k, i;
@@ -43,13 +43,17 @@ int record()
 	}
 	sf::SoundBufferRecorder recorder;
 
-	sf::RenderWindow window(sf::VideoMode(640, 400), "Chat");
+	sf::RenderWindow window(sf::VideoMode(200, 100), "Chat");
 	while (window.isOpen())
 	{
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
 			if (event.type == sf::Event::Closed) {
+				window.close();
+				break;
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
 				window.close();
 				break;
 			}
@@ -66,15 +70,16 @@ int record()
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
 				std::cout << "Analyzing" << std::endl;
 				const sf::SoundBuffer& buffer = recorder.getBuffer();
-				
+
 				unsigned int SAMPLE_RATE = recorder.getSampleRate();
 				const sf::Int16* samples = buffer.getSamples();
 				std::size_t count = buffer.getSampleCount();
-
-				std::cout << goertzel_mag(count, 400, SAMPLE_RATE, samples) << std::endl;
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
-				window.close();
+				
+				int freq[] = {697, 770, 852, 941, 1209, 1336, 1477, 1633};
+				for (int i = 0; i < 8; i++) {
+					std::cout << "Frequency:" << freq[i] << ":" << " ";
+					std::cout << "Goertzel mag:" << goertzel_mag(count, freq[i], SAMPLE_RATE, samples) << std::endl;
+				}
 			}
 		}
 	}
